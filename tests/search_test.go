@@ -1,7 +1,7 @@
 package tests
 
 import (
-	"github.com/ldaidone/goembedx/internal/vec"
+	"github.com/ldaidone/goembedx/vector"
 	"testing"
 )
 
