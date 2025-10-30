@@ -33,10 +33,7 @@ jobs:
         run: |
           go test ./... -race -coverprofile=coverage.out -covermode=atomic
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
         with:
-          files: coverage.out
-          token: e2791bc0-4d3b-47a1-b04f-ed6f1f5bff17
-          flags: unittests
-          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
