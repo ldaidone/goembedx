@@ -8,7 +8,7 @@ import (
 func TestCosine(t *testing.T) {
 	a := []float32{1, 0}
 	b := []float32{1, 0}
-	if vec.Cosine(a, b) != 1 {
+	if vector.Cosine(a, b) != 1 {
 		t.Fatal("expected 1")
 	}
 }
