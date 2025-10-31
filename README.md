@@ -2,7 +2,9 @@
 > Lightweight local embedding store for Go — pure Go, zero dependencies, blazing fast nearest-vector search.
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/ldaidone/goembedx.svg)](https://pkg.go.dev/github.com/ldaidone/goembedx)
-[![Go Report Card](https://goreportcard.com/badge/github.com/ldaidone/goembedx)](https://goreportcard.com/report/github.com/ldaidone/goembedx)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ldaidone/goembedx?refresh=1
+)](https://goreportcard.com/badge/github.com/ldaidone/goembedx?refresh=1
+)
 ![Stars](https://img.shields.io/github/stars/ldaidone/goembedx?style=social)
 [![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](LICENSE)
 [![Build](https://github.com/ldaidone/goembedx/actions/workflows/ci.yml/badge.svg)](https://github.com/ldaidone/goembedx/actions/workflows/ci.yml)
