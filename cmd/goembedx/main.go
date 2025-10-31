@@ -36,7 +36,13 @@ func parseVec(s string, dimension int) ([]float32, error) {
 }
 
 func main() {
+	//helpFlag := flag.String("h", "", "Show help")
 	flag.Parse()
+
+	//if helpFlag != nil {
+	//	fmt.Println("usage...")
+	//	return
+	//}
 	store := goembedx.MemoryStore(*dim)
 
 	switch *mode {

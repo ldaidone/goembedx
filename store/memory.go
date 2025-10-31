@@ -2,12 +2,14 @@ package store
 
 import (
 	"errors"
+	"github.com/ldaidone/goembedx/vector"
 )
 
 // Vector is a stored vector with an ID.
 type Vector struct {
-	ID  string
-	Val []float32
+	ID   string
+	Val  []float32
+	Norm float32
 }
 
 // MemoryStore is a very small in-memory vector container optimized for read-heavy workloads.
@@ -33,7 +35,8 @@ func (s *MemoryStore) Add(id string, vec []float32) error {
 	if len(vec) != s.dim {
 		return errors.New("store: vector dimension mismatch")
 	}
-	s.data = append(s.data, Vector{ID: id, Val: vec})
+	n := vector.Norm(vec)
+	s.data = append(s.data, Vector{ID: id, Val: vec, Norm: n})
 	return nil
 }
 

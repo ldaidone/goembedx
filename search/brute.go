@@ -26,11 +26,14 @@ func SearchBrute(s *store.MemoryStore, query []float32, k int) []Result {
 		return []Result{}
 	}
 
+	// Compute query norm once (big win)
+	qNorm := vector.Norm(query)
+
 	// if k <= 0 or k >= n, compute all and sort
 	if k <= 0 || k >= n {
 		out := make([]Result, 0, n)
 		for _, v := range s.Data() {
-			score := vector.Cosine(query, v.Val)
+			score := vector.Dot(query, v.Val) / (qNorm * v.Norm)
 			out = append(out, Result{ID: v.ID, Score: score})
 		}
 		sort.Slice(out, func(i, j int) bool { return out[i].Score > out[j].Score })
@@ -41,7 +44,7 @@ func SearchBrute(s *store.MemoryStore, query []float32, k int) []Result {
 	h := &minHeap{}
 	heap.Init(h)
 	for _, v := range s.Data() {
-		score := vector.Cosine(query, v.Val)
+		score := vector.Dot(query, v.Val) / (qNorm * v.Norm)
 		if h.Len() < k {
 			heap.Push(h, &item{res: Result{ID: v.ID, Score: score}})
 		} else if score > (*h)[0].res.Score {

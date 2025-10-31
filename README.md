@@ -1,14 +1,14 @@
 # goembedx 🧠⚡
 > Lightweight local embedding store for Go — pure Go, zero dependencies, blazing fast nearest-vector search.
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Go Reference](https://pkg.go.dev/badge/github.com/ldaidone/goembedx.svg)](https://pkg.go.dev/github.com/ldaidone/goembedx)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ldaidone/goembedx?refresh=1
 )](https://goreportcard.com/badge/github.com/ldaidone/goembedx?refresh=1
 )
-![Stars](https://img.shields.io/github/stars/ldaidone/goembedx?style=social)
-[![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](LICENSE)
 [![Build](https://github.com/ldaidone/goembedx/actions/workflows/ci.yml/badge.svg)](https://github.com/ldaidone/goembedx/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/ldaidone/goembedx/branch/main/graph/badge.svg)](https://codecov.io/gh/ldaidone/goembedx)
+![Stars](https://img.shields.io/github/stars/ldaidone/goembedx?style=social)
 
 
 > 💡 **goembedx** is a tiny vector database for embeddings — perfect for local LLM agents, RAG systems, and semantic search inside Go applications.
