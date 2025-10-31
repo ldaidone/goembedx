@@ -1,12 +1,11 @@
-package tests
+package store
 
 import (
-	"github.com/ldaidone/goembedx/store"
 	"testing"
 )
 
 func TestMemoryStoreAdd(t *testing.T) {
-	s := store.NewMemoryStore(2)
+	s := NewMemoryStore(2)
 	if err := s.Add("id1", []float32{1, 2}); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

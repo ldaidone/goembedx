@@ -1,7 +1,6 @@
-package tests
+package vector
 
 import (
-	"github.com/ldaidone/goembedx/vector"
 	"math/rand"
 	"testing"
 	"time"
@@ -26,7 +25,7 @@ func BenchmarkDot768(b *testing.B) {
 	c := makeVec(dim)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = vector.Dot(a, c)
+		_ = Dot(a, c)
 	}
 }
 
@@ -36,6 +35,6 @@ func BenchmarkCosine768(b *testing.B) {
 	c := makeVec(dim)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = vector.Cosine(a, c)
+		_ = Cosine(a, c)
 	}
 }

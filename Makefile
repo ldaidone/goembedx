@@ -19,7 +19,7 @@ lint:
 
 test:
 	@echo "✅ Running tests with race detector..."
-	go test -race -cover -coverprofile=$(COVER_FILE) $(PKG)
+	go test ./... -race -coverprofile=$(COVER_FILE) -covermode=atomic
 
 bench:
 	@echo "🏎️ Benchmarking vector ops..."
