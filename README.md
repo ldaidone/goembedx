@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Go Reference](https://pkg.go.dev/badge/github.com/ldaidone/goembedx.svg)](https://pkg.go.dev/github.com/ldaidone/goembedx)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ldaidone/goembedx?refresh=1
-)](https://goreportcard.com/badge/github.com/ldaidone/goembedx?refresh=1
+)](https://goreportcard.com/report/github.com/ldaidone/goembedx
 )
 [![Build](https://github.com/ldaidone/goembedx/actions/workflows/ci.yml/badge.svg)](https://github.com/ldaidone/goembedx/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/ldaidone/goembedx/branch/main/graph/badge.svg)](https://codecov.io/gh/ldaidone/goembedx)
@@ -16,11 +16,16 @@
 ### ✨ Features
 - 🔥 Pure Go (no CGO, no external libraries)
 - ⚡ Fast cosine similarity search
-- 📦 Simple in-memory storage (disk persistence coming soon)
-- 🤖 Drop-in tool for local AI workflows (Ollama / HF / OpenAI)
+- 📦 In-memory and persistent storage with BadgerDB backend
+- 🖥️ Available: CLI tools (goembedx add/search) for vector management
+- 🧬 Available: Precomputed vector norms for optimized search
+- 📁 Available: Import/export vector functionality
+- 🤖 Future: Ollama & HF embedding helpers
 - 💾 Works offline — great for agents on the edge
 - 🧪 Fully tested, clean API, blazing performance
 - 🧠 Build semantic search in minutes
+- 🧠 Future: Optional ANN index (HNSW lite)
+- 🔌 Future: goembedx serve — REST API mode
 
 ---
 
@@ -28,24 +33,32 @@
 
 ```go
 import (
-	"fmt"
-
-	"github.com/ldaidone/goembedx"
+ "fmt"
+ "github.com/ldaidone/goembedx"
 )
 
 func main() {
-	store := goembedx.New(384) // 384-dim example (MiniLM, etc.)
+	store := goembedx.New384) // 384-dim example (MiniLM, etc.)
 
-	store.Add("doc1", []float32{ /* embedding */ })
-	store.Add("doc2", []float32{ /* embedding */ })
+ 	store.Add"doc1", []float32{0.1, 0.2, 0.3, /* ... more values to match dimension */ })
+ 	store.Add"doc2", []float32{0.4, 0.5, 0.6, /* ... more values to match dimension */ })
 
-	query := []float32{ /* embedding */ }
-	results := store.Search(query, 3)
+ 	query := [float32{0.15, 0.25, 0.35, /* ... same dimension as vectors */ }
+ 	results := store.Search(query,3)
 
-	for _, r := range results {
-		fmt.Println(r.ID, r.Score)
-	}
+    for _, r := range results {
+ 		fmt.Println(r.ID, r.Score)
+ 	}
 }
+```
+
+### 🖥️ CLI Usage
+```bash
+# Add a vector with ID
+goembedx add doc1 0.1 0.2 0.3 0.4
+ 
+# Search for similar vectors
+goembedx search 0.15 0.25 0.35 0.45
 ```
 
 ### 📦 Install
@@ -56,12 +69,7 @@ go get github.com/ldaidone/goembedx
 
 ### 🔭 Roadmap
 
-- ✅ In-memory vector store
-- ✅ Cosine similarity + Top-K
-- 🧩 File-based persistence (.embedx)
-- 🧠 Optional ANN index (HNSW lite)
-- 🤖 Ollama & HF embedding helpers
-- 🔌 goembedx serve — REST API mode
+Check our complete roadmap and future plans in [ROADMAP.md](./ROADMAP.md).
 
 ### 🧪 Testing
 
