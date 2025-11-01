@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/ldaidone/goembedx/legacy/search"
+	"github.com/ldaidone/goembedx/legacy/store"
 
-	"github.com/ldaidone/goembedx/search"
-	"github.com/ldaidone/goembedx/store"
 	"github.com/ldaidone/goembedx/vector"
 )
 

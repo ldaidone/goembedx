@@ -2,9 +2,9 @@ package search
 
 import (
 	"container/heap"
+	"github.com/ldaidone/goembedx/legacy/store"
 	"sort"
 
-	"github.com/ldaidone/goembedx/store"
 	"github.com/ldaidone/goembedx/vector"
 )
 
