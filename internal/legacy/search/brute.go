@@ -2,7 +2,7 @@ package search
 
 import (
 	"container/heap"
-	"github.com/ldaidone/goembedx/legacy/store"
+	"github.com/ldaidone/goembedx/internal/store/memory"
 	"sort"
 
 	"github.com/ldaidone/goembedx/vector"
@@ -17,7 +17,7 @@ type Result struct {
 // SearchBrute returns the top-k results from the provided MemoryStore for the given query vector.
 // If k <= 0 it returns all results sorted by score descending.
 // Complexity: O(n log k) using a min-heap of size k.
-func SearchBrute(s *store.MemoryStore, query []float32, k int) []Result {
+func SearchBrute(s *memory.MemoryStore, query []float32, k int) []Result {
 	if s == nil {
 		return nil
 	}
