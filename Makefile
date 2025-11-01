@@ -32,7 +32,7 @@ cover: test
 ## ---------- Build ----------
 build:
 	@echo "🔧 Building CLI..."
-	go build -o bin/$(APP) $(CLI)
+	go build -ldflags "-s -w" -o bin/$(APP) $(CLI)
 
 example:
 	@echo "▶️ Running example..."

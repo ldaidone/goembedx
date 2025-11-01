@@ -1,9 +1,8 @@
 package search
 
 import (
+	"github.com/ldaidone/goembedx/legacy/store"
 	"testing"
-
-	"github.com/ldaidone/goembedx/store"
 )
 
 func TestBruteSearchBasic(t *testing.T) {

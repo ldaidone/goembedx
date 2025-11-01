@@ -1,18 +1,17 @@
-package goembedx_test
+package legacy_test
 
 import (
+	"github.com/ldaidone/goembedx/pkg/embedx"
 	"testing"
-
-	"github.com/ldaidone/goembedx"
 )
 
 func TestTopLevelAPI(t *testing.T) {
-	s := goembedx.MemoryStore(3)
+	s := embedx.MemoryStore(3)
 	if err := s.Add("x", []float32{1, 0, 0}); err != nil {
 		t.Fatal(err)
 	}
 
-	res, err := goembedx.SearchTopK(s, []float32{1, 0, 0}, 1)
+	res, err := embedx.SearchTopK(s, []float32{1, 0, 0}, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -23,8 +22,8 @@ func TestTopLevelAPI(t *testing.T) {
 }
 
 func TestDimMismatch(t *testing.T) {
-	s := goembedx.MemoryStore(3)
-	_, err := goembedx.SearchTopK(s, []float32{1, 0}, 1)
+	s := embedx.MemoryStore(3)
+	_, err := embedx.SearchTopK(s, []float32{1, 0}, 1)
 	if err == nil {
 		t.Fatal("expected dimension mismatch error")
 	}
