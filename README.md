@@ -77,6 +77,20 @@ Check our complete roadmap and future plans in [ROADMAP.md](./ROADMAP.md).
 go test ./...
 ```
 
+or you can use **Makefile** commands
+
+```bash
+make test
+```
+
+### Makefile help
+
+To know all available commands run
+
+```bash
+make help
+```
+
 ## License
 
 Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
