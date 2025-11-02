@@ -1,13 +1,12 @@
 package search
 
 import (
+	"github.com/ldaidone/goembedx/internal/store/memory"
 	"testing"
-
-	"github.com/ldaidone/goembedx/store"
 )
 
 func TestBruteSearchBasic(t *testing.T) {
-	s := store.NewMemoryStore(3)
+	s := memory.NewMemoryStore(3)
 	_ = s.Add("a", []float32{1, 0, 0}) // similar to query
 	_ = s.Add("b", []float32{0, 1, 0})
 	_ = s.Add("c", []float32{0, 0, 1})
@@ -23,7 +22,7 @@ func TestBruteSearchBasic(t *testing.T) {
 }
 
 func TestBruteSearchAll(t *testing.T) {
-	s := store.NewMemoryStore(2)
+	s := memory.NewMemoryStore(2)
 	_ = s.Add("x", []float32{1, 0})
 	_ = s.Add("y", []float32{0, 1})
 

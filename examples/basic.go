@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/ldaidone/goembedx/search"
-	"github.com/ldaidone/goembedx/store"
+	"github.com/ldaidone/goembedx/internal/legacy/search"
+	"github.com/ldaidone/goembedx/internal/store/memory"
 	"github.com/ldaidone/goembedx/vector"
 )
 
+// Legacy memory-based store example - will be deprecated.
 func main() {
 	// small demo showing add + search
-	s := store.NewMemoryStore(3)
+	s := memory.NewMemoryStore(3)
 	_ = s.Add("doc1", []float32{1, 0, 0})
 	_ = s.Add("doc2", []float32{0.9, 0.1, 0})
 	_ = s.Add("doc3", []float32{0, 1, 0})
