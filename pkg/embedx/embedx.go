@@ -1,3 +1,5 @@
+// Package embedx provides core vector embedding storage functionality.
+// It implements the core logic for vector storage, retrieval, and similarity search.
 package embedx
 
 import (
@@ -7,20 +9,32 @@ import (
 	"sync"
 )
 
+// Embedder provides the core functionality for adding and searching vectors.
 type Embedder struct {
+	// store holds the underlying vector storage implementation.
 	store VectorStore
 }
 
+// New creates a new Embedder instance with the specified vector store.
+// The store must implement the VectorStore interface and handle the actual
+// storage and retrieval of vectors.
 func New(store VectorStore) *Embedder {
 	return &Embedder{store: store}
 }
 
+// Result represents a single search result with ID, similarity score, and vector data.
 type Result struct {
-	ID     string
-	Score  float32
+	// ID is the identifier of the matching vector.
+	ID string
+	// Score is the cosine similarity score between -1.0 and 1.0.
+	// Higher scores indicate greater similarity.
+	Score float32
+	// Vector contains the actual vector data of the result.
 	Vector []float32
 }
 
+// Add adds a vector with the specified ID to the store.
+// It returns an error if the vector is empty or if the underlying store returns an error.
 func (e *Embedder) Add(id string, vec []float32) error {
 	if len(vec) == 0 {
 		return errors.New("cannot store empty vector")
@@ -28,6 +42,12 @@ func (e *Embedder) Add(id string, vec []float32) error {
 	return e.store.SaveVector(id, vec)
 }
 
+// Search performs a similarity search against all stored vectors.
+// It computes cosine similarity between the query vector and all stored vectors,
+// then returns the top-k most similar results sorted by score in descending order.
+//
+// Returns an error if the query vector is empty, the store is empty, or if
+// the underlying store returns an error during retrieval.
 func (e *Embedder) Search(query []float32, k int) ([]Result, error) {
 	if len(query) == 0 {
 		return nil, errors.New("query vector is empty")
@@ -44,14 +64,14 @@ func (e *Embedder) Search(query []float32, k int) ([]Result, error) {
 	scores := make([]Result, 0, len(items))
 
 	for id, vec := range items {
-		// dimension mismatch guard
+		// Skip vectors with mismatched dimensions
 		if len(vec) != len(query) {
 			continue
 		}
 
 		score := cosineSimilarity(query, vec)
 
-		// skip weird values
+		// Skip results with NaN scores
 		if math.IsNaN(float64(score)) {
 			continue
 		}
@@ -63,7 +83,7 @@ func (e *Embedder) Search(query []float32, k int) ([]Result, error) {
 		})
 	}
 
-	// no matches? return empty slice, not nil
+	// Return empty slice if no matches found
 	if len(scores) == 0 {
 		return []Result{}, nil
 	}
@@ -79,6 +99,9 @@ func (e *Embedder) Search(query []float32, k int) ([]Result, error) {
 	return scores, nil
 }
 
+// cosineSimilarity computes the cosine similarity between two vectors.
+// It returns a value between -1.0 and 1.0 indicating the cosine of the angle between vectors.
+// Values closer to 1.0 indicate higher similarity.
 func cosineSimilarity(a, b []float32) float32 {
 	var dot, magA, magB float32
 
@@ -96,14 +119,19 @@ func cosineSimilarity(a, b []float32) float32 {
 	return dot / den
 }
 
-// MemoryStore is an in-memory vector store implementation
+// MemoryStore implements an in-memory vector store with thread-safe operations.
+// It optionally enforces dimension constraints on stored vectors.
 type MemoryStore struct {
+	// data holds the map of vector IDs to vector data.
 	data map[string][]float32
-	dim  int // dimension requirement, 0 means no restriction
-	mu   sync.RWMutex
+	// dim specifies the required dimension for stored vectors.
+	// If 0, no dimension restriction is enforced.
+	dim int
+	// mu provides read-write mutex for thread-safe access to data.
+	mu sync.RWMutex
 }
 
-// NewMemoryStore creates a new in-memory vector store
+// NewMemoryStore creates a new in-memory vector store with no dimension restriction.
 func NewMemoryStore() *MemoryStore {
 	return &MemoryStore{
 		data: make(map[string][]float32),
@@ -111,7 +139,8 @@ func NewMemoryStore() *MemoryStore {
 	}
 }
 
-// NewMemoryStoreWithDim creates a new in-memory vector store with dimension restriction
+// NewMemoryStoreWithDim creates a new in-memory vector store with the specified dimension restriction.
+// All vectors stored in this store must have the given dimension.
 func NewMemoryStoreWithDim(dim int) *MemoryStore {
 	return &MemoryStore{
 		data: make(map[string][]float32),
@@ -119,7 +148,9 @@ func NewMemoryStoreWithDim(dim int) *MemoryStore {
 	}
 }
 
-// SaveVector saves a vector with the given ID
+// SaveVector stores a vector with the given ID.
+// Returns an error if the ID is empty, the vector is empty,
+// or if the vector dimension doesn't match the store's dimension requirement.
 func (m *MemoryStore) SaveVector(id string, vec []float32) error {
 	if id == "" {
 		return errors.New("id cannot be empty")
@@ -139,7 +170,8 @@ func (m *MemoryStore) SaveVector(id string, vec []float32) error {
 	return nil
 }
 
-// GetVector retrieves a vector by ID
+// GetVector retrieves a vector by its ID.
+// Returns an error if the vector is not found in the store.
 func (m *MemoryStore) GetVector(id string) ([]float32, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -152,7 +184,7 @@ func (m *MemoryStore) GetVector(id string) ([]float32, error) {
 	return append([]float32(nil), vec...), nil // copy slice before returning
 }
 
-// GetAllVectors returns all stored vectors
+// GetAllVectors returns all stored vectors as a map from ID to vector data.
 func (m *MemoryStore) GetAllVectors() (map[string][]float32, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -164,7 +196,8 @@ func (m *MemoryStore) GetAllVectors() (map[string][]float32, error) {
 	return result, nil
 }
 
-// Close implements the VectorStore interface (no-op for memory store)
+// Close releases any resources held by the memory store.
+// For this in-memory implementation, it's a no-op.
 func (m *MemoryStore) Close() error {
 	return nil
 }

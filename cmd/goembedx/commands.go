@@ -1,3 +1,5 @@
+// Package main implements the goembedx command-line interface using Cobra.
+// It provides commands for adding and searching vectors in the persistent store.
 package main
 
 import (
@@ -6,12 +8,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// dbPath stores the database path specified by the --db flag.
 var dbPath string
 
+// Execute runs the CLI command with the given embedx engine.
+// It sets up the root command with subcommands and executes it.
 func Execute(engine *embedx.Embedder) {
 	root := &cobra.Command{
 		Use:   "goembedx",
 		Short: "Vector embedding store and search engine",
+		Long: `goembedx is a lightweight local embedding store for Go.
+It provides CLI tools for adding and searching vector embeddings.`,
 
 		// attach engine to context for subcommands
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -20,7 +27,7 @@ func Execute(engine *embedx.Embedder) {
 		},
 	}
 
-	root.PersistentFlags().StringVar(&dbPath, "db", "./data", "database path")
+	root.PersistentFlags().StringVar(&dbPath, "db", "./data", "database path for persistent storage")
 
 	root.AddCommand(cmdInit(), cmdAdd(), cmdSearch())
 
@@ -29,10 +36,12 @@ func Execute(engine *embedx.Embedder) {
 	}
 }
 
+// cmdInit creates the 'init' command for initializing the vector store.
 func cmdInit() *cobra.Command {
 	return &cobra.Command{
 		Use:   "init",
 		Short: "Initialize vector store (already done in main)",
+		Long:  `Initialize the vector store. This command confirms that the database path is ready for use.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			engine := embedx.EngineFromContext(cmd.Context())
 			if engine == nil {
@@ -45,11 +54,14 @@ func cmdInit() *cobra.Command {
 	}
 }
 
+// cmdAdd creates the 'add' command for adding vectors to the store.
 func cmdAdd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "add [id] [v1 v2 v3 ...]",
 		Short: "Add vector",
-		Args:  cobra.MinimumNArgs(2),
+		Long: `Add a vector with the given ID to the store.
+The vector components should be provided as separate arguments after the ID.`,
+		Args: cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			engine := embedx.FromContext(cmd.Context())
 			if engine == nil {
@@ -72,11 +84,14 @@ func cmdAdd() *cobra.Command {
 	}
 }
 
+// cmdSearch creates the 'search' command for searching similar vectors.
 func cmdSearch() *cobra.Command {
 	return &cobra.Command{
 		Use:   "search [v1 v2 v3 ...]",
 		Short: "Search vectors",
-		Args:  cobra.MinimumNArgs(1),
+		Long: `Search for vectors similar to the given query vector.
+The query vector components should be provided as separate arguments.`,
+		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			engine := embedx.FromContext(cmd.Context())
 			if engine == nil {
@@ -102,6 +117,8 @@ func cmdSearch() *cobra.Command {
 	}
 }
 
+// parseFloat32Vec converts a slice of string representations to a slice of float32 values.
+// It returns an error if any string cannot be parsed as a float32.
 func parseFloat32Vec(strs []string) ([]float32, error) {
 	vec := make([]float32, len(strs))
 	for i, s := range strs {
