@@ -13,7 +13,7 @@ This roadmap outlines the planned evolution from minimal engine to production-re
 ---
 
 ## 🚧 v0.2.0 — Persistent Store (next)
-- SQLite backend
+- BadgerDBckend
 - Import/export vectors
 - CLI: `goembedx add/search`
 - Persist vector norms
