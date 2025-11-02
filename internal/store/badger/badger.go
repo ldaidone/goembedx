@@ -1,3 +1,5 @@
+// Package badger provides a persistent vector store implementation using BadgerDB.
+// BadgerDB is an embeddable, persistent, and fast key-value database written in Go.
 package badger
 
 import (
@@ -10,7 +12,10 @@ import (
 	"sort"
 )
 
+// BadgerStore implements the embedx stores using BadgerDB as the persistent backend.
+// It stores vectors with precomputed norms for efficient similarity calculations.
 type BadgerStore struct {
+	// db is the underlying BadgerDB database instance.
 	db *badger.DB
 }
 
@@ -18,6 +23,9 @@ type BadgerStore struct {
 var _ embedx.VectorStore = (*BadgerStore)(nil)
 var _ embedx.Store = (*BadgerStore)(nil)
 
+// NewBadgerStore creates a new BadgerStore instance backed by BadgerDB.
+// The path parameter specifies the directory where the database files will be stored.
+// Returns an error if the database cannot be opened or initialized.
 func NewBadgerStore(path string) (*BadgerStore, error) {
 	opts := badger.DefaultOptions(path).WithLogger(nil)
 	db, err := badger.Open(opts)
@@ -165,13 +173,20 @@ func (s *BadgerStore) Close() error {
 	return s.db.Close()
 }
 
-// vectorData holds the complete vector information including precomputed norm
+// vectorData holds the complete vector information including precomputed norm.
+// This structure allows efficient retrieval of vectors with their associated metadata and precomputed norms.
 type vectorData struct {
+	// Vector contains the actual float32 vector data.
 	Vector []float32
-	Norm   float32
-	Meta   map[string]any
+	// Norm is the precomputed L2 norm of the vector for efficient similarity calculations.
+	Norm float32
+	// Meta contains optional metadata associated with the vector.
+	Meta map[string]any
 }
 
+// Add stores a vector with the given ID and associated metadata.
+// It precomputes the L2 norm of the vector for faster similarity calculations.
+// Returns an error if the operation fails.
 func (s *BadgerStore) Add(id string, vec []float32, meta map[string]any) error {
 	// Precompute norm for faster similarity calculations
 	var norm float32
@@ -196,6 +211,9 @@ func (s *BadgerStore) Add(id string, vec []float32, meta map[string]any) error {
 	})
 }
 
+// Get retrieves a vector by its ID along with its precomputed norm and metadata.
+// It handles backward compatibility with older data formats.
+// Returns the vector, its norm, metadata, and any error that occurred.
 func (s *BadgerStore) Get(id string) ([]float32, float32, map[string]any, error) {
 	var data vectorData
 
@@ -329,7 +347,9 @@ func (s *BadgerStore) Search(query []float32, k int) ([]embedx.SearchResult, err
 	return results, nil
 }
 
-// ImportVectors imports vectors from a map
+// ImportVectors imports multiple vectors from a map of ID to vector data.
+// It stores each vector with its corresponding ID in the BadgerDB store.
+// Returns an error if any vector fails to be imported.
 func (s *BadgerStore) ImportVectors(vectors map[string][]float32) error {
 	for id, vec := range vectors {
 		if err := s.SaveVector(id, vec); err != nil {
@@ -339,7 +359,8 @@ func (s *BadgerStore) ImportVectors(vectors map[string][]float32) error {
 	return nil
 }
 
-// ExportVectors exports all vectors to a map
+// ExportVectors exports all stored vectors to a map of ID to vector data.
+// Returns a map of all vectors stored in the database and any error that occurred.
 func (s *BadgerStore) ExportVectors() (map[string][]float32, error) {
 	return s.GetAllVectors()
 }
