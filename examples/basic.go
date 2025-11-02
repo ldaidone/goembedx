@@ -24,4 +24,15 @@ func main() {
 	}
 	// show cosine computed directly
 	fmt.Println("Cosine(doc1,query) =", vector.Cosine([]float32{1, 0, 0}, query))
+
+	// benchmark
+	a := make([]float32, 1_000_000)
+	b := make([]float32, 1_000_000)
+	for i := range a {
+		a[i] = 1
+		b[i] = 2
+	}
+
+	fmt.Println("\n\n\nDot(a,b) =", vector.Dot(a, b), "\n\n\n")
+
 }

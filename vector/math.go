@@ -3,23 +3,6 @@ package vector
 
 import "math"
 
-// Dot computes the dot product of two vectors.
-// The dot product is the sum of the products of the corresponding entries
-// of the two sequences of numbers.
-//
-// It panics if the input vectors have different lengths.
-func Dot(a, b []float32) float32 {
-	if len(a) != len(b) {
-		panic("vector: Dot requires vectors of equal length")
-	}
-	var sum float32
-	// simple scalar loop; optimized variants (SIMD) will replace this later
-	for i := 0; i < len(a); i++ {
-		sum += a[i] * b[i]
-	}
-	return sum
-}
-
 // Norm returns the L2 norm (Euclidean length) of a vector.
 // The L2 norm is calculated as the square root of the sum of the squares of its elements.
 func Norm(a []float32) float32 {
