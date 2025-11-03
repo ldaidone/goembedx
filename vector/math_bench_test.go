@@ -27,6 +27,16 @@ func BenchmarkDot768(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_ = Dot(a, c)
 	}
+
+	d := make([]float32, 1_000_000)
+	e := make([]float32, 1_000_000)
+	for i := range d {
+		d[i] = 1
+		e[i] = 2
+	}
+
+	println(Dot(d, e))
+
 }
 
 func BenchmarkCosine768(b *testing.B) {
