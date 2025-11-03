@@ -1,3 +1,6 @@
+// Package memory provides an in-memory vector store implementation.
+// This implementation stores vectors in memory for fast access, suitable for smaller datasets
+// or testing environments where persistence is not required.
 package memory
 
 import (
@@ -5,21 +8,29 @@ import (
 	"github.com/ldaidone/goembedx/vector"
 )
 
-// Vector is a stored vector with an ID.
+// Vector represents a stored vector with its identifier and precomputed norm.
+// The norm is stored to enable efficient similarity calculations.
 type Vector struct {
-	ID   string
-	Val  []float32
+	// ID is the unique identifier for this vector.
+	ID string
+	// Val contains the actual float32 vector data.
+	Val []float32
+	// Norm is the precomputed L2 norm of the vector for efficient similarity calculations.
 	Norm float32
 }
 
-// MemoryStore is a very small in-memory vector container optimized for read-heavy workloads.
-// It is not thread-safe; callers should synchronize if used concurrently.
+// MemoryStore is an in-memory vector container optimized for read-heavy workloads.
+// It maintains vectors of fixed dimension and precomputes their norms for fast similarity searches.
+// Note: This implementation is not thread-safe; callers must synchronize access if used concurrently.
 type MemoryStore struct {
-	dim  int
+	// dim specifies the required dimension for all vectors in this store.
+	dim int
+	// data contains the slice of stored vectors.
 	data []Vector
 }
 
-// NewMemoryStore creates a store for vectors of dimension dim. dim must be > 0.
+// NewMemoryStore creates a new in-memory vector store for vectors of the specified dimension.
+// The dimension must be greater than 0 and all vectors added to this store must match this dimension.
 func NewMemoryStore(dim int) *MemoryStore {
 	return &MemoryStore{
 		dim:  dim,
@@ -27,10 +38,13 @@ func NewMemoryStore(dim int) *MemoryStore {
 	}
 }
 
-// Dim returns the dimensionality of this store.
+// Dim returns the dimensionality constraint of this store.
+// All vectors in this store have this same dimension.
 func (s *MemoryStore) Dim() int { return s.dim }
 
-// Add inserts a vector into the store. It returns an error if the vector length doesn't match store dim.
+// Add inserts a vector with the given ID into the store.
+// It precomputes the L2 norm of the vector for efficient similarity calculations.
+// Returns an error if the vector dimension doesn't match the store's dimension constraint.
 func (s *MemoryStore) Add(id string, vec []float32) error {
 	if len(vec) != s.dim {
 		return errors.New("store: vector dimension mismatch")
@@ -40,10 +54,11 @@ func (s *MemoryStore) Add(id string, vec []float32) error {
 	return nil
 }
 
-// Data returns the underlying slice of vectors (read-only semantics expected).
+// Data returns the underlying slice of stored vectors.
+// Callers should treat the returned slice as read-only to maintain data integrity.
 func (s *MemoryStore) Data() []Vector {
 	return s.data
 }
 
-// Len returns number of vectors stored.
+// Len returns the number of vectors currently stored in this container.
 func (s *MemoryStore) Len() int { return len(s.data) }

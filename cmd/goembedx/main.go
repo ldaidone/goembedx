@@ -1,3 +1,5 @@
+// Package main implements the goembedx command-line interface.
+// This package provides a CLI tool for interacting with the goembedx vector embedding store.
 package main
 
 import (
@@ -5,6 +7,9 @@ import (
 	"github.com/ldaidone/goembedx/pkg/embedx"
 )
 
+// main is the entry point for the goembedx command-line application.
+// It initializes a BadgerDB-backed vector store, creates an embedx engine,
+// and executes the CLI command tree.
 func main() {
 	store, err := badger.NewBadgerStore("./data")
 	if err != nil {
