@@ -1,4 +1,7 @@
-// Package vector provides basic mathematical operations for float32 vectors.
+// Package vector provides optimized mathematical operations for float32 vectors.
+// It includes SIMD-optimized implementations for common vector operations like dot
+// products, cosine similarity, and L2 norms. The package automatically selects
+// the best implementation based on CPU capabilities (AVX2, NEON, or generic).
 package vector
 
 import "math"
