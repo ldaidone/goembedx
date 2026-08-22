@@ -96,6 +96,7 @@ func NewConfig(opts ...Option) Config {
 type hnswNode struct {
 	id        string
 	vec       []float32
+	norm      float64
 	level     int
 	neighbors [][]int // neighbors[l] are node indexes reachable at layer l
 }
@@ -159,6 +160,7 @@ func (h *HNSW) Add(id string, vec []float32) error {
 	h.vectors = append(h.vectors, hnswNode{
 		id:        id,
 		vec:       vec,
+		norm:      float64(vector.Norm(vec)),
 		level:     level,
 		neighbors: make([][]int, level+1),
 	})
@@ -170,9 +172,10 @@ func (h *HNSW) Add(id string, vec []float32) error {
 	}
 
 	query := vec
+	qn := h.vectors[idx].norm
 	ep := h.entry
 	for layer := h.maxLevel; layer > level; layer-- {
-		ep = h.searchLayer(query, ep, 1, layer)[0].idx
+		ep = h.searchLayer(query, qn, ep, 1, layer)[0].idx
 	}
 
 	top := level
@@ -180,7 +183,7 @@ func (h *HNSW) Add(id string, vec []float32) error {
 		top = h.maxLevel
 	}
 	for layer := top; layer >= 0; layer-- {
-		w := h.searchLayer(query, ep, h.cfg.EfConstruction, layer)
+		w := h.searchLayer(query, qn, ep, h.cfg.EfConstruction, layer)
 		neighbors := h.selectNeighbors(w, layer)
 		h.link(idx, neighbors, layer)
 		if len(w) > 0 {
@@ -203,15 +206,16 @@ func (h *HNSW) Search(query []float32, k int) []Result {
 	}
 
 	ep := h.entry
+	qn := float64(vector.Norm(query))
 	for layer := h.maxLevel; layer > 0; layer-- {
-		ep = h.searchLayer(query, ep, 1, layer)[0].idx
+		ep = h.searchLayer(query, qn, ep, 1, layer)[0].idx
 	}
 
 	ef := h.cfg.EfSearch
 	if k > ef {
 		ef = k
 	}
-	w := h.searchLayer(query, ep, ef, 0)
+	w := h.searchLayer(query, qn, ep, ef, 0)
 	if k > len(w) {
 		k = len(w)
 	}
@@ -259,7 +263,7 @@ func (h *HNSW) shrink(idx int, layer int, cap int) {
 	node := &h.vectors[idx]
 	w := make([]candidate, 0, len(node.neighbors[layer]))
 	for _, nb := range node.neighbors[layer] {
-		w = append(w, candidate{idx: nb, dist: h.dist(node.vec, h.vectors[nb].vec)})
+		w = append(w, candidate{idx: nb, dist: h.distNorm(node.vec, node.norm, h.vectors[nb].vec, h.vectors[nb].norm)})
 	}
 	// sort ascending by distance to node
 	sortCandidates(w)
@@ -283,7 +287,8 @@ func (h *HNSW) selectNeighbors(w []candidate, layer int) []int {
 		}
 		dominated := false
 		for _, s := range selected {
-			if h.dist(h.vectors[c.idx].vec, h.vectors[s].vec) < c.dist {
+			sn := &h.vectors[s]
+			if h.distNorm(h.vectors[c.idx].vec, h.vectors[c.idx].norm, sn.vec, sn.norm) < c.dist {
 				dominated = true
 				break
 			}
@@ -303,13 +308,13 @@ func (h *HNSW) selectNeighbors(w []candidate, layer int) []int {
 
 // searchLayer runs the beam search of width ef around the query at a single
 // graph layer and returns the visited nodes ordered by ascending distance.
-func (h *HNSW) searchLayer(query []float32, ep int, ef int, layer int) []candidate {
+func (h *HNSW) searchLayer(query []float32, qn float64, ep int, ef int, layer int) []candidate {
 	visited := make(map[int]struct{}, ef*2)
 	visited[ep] = struct{}{}
 
 	cand := &candidateHeap{}
 	res := &candidateHeap{max: true}
-	d0 := h.dist(query, h.vectors[ep].vec)
+	d0 := h.distNorm(query, qn, h.vectors[ep].vec, h.vectors[ep].norm)
 	heap.Push(cand, candidate{idx: ep, dist: d0})
 	heap.Push(res, candidate{idx: ep, dist: d0})
 
@@ -323,7 +328,8 @@ func (h *HNSW) searchLayer(query []float32, ep int, ef int, layer int) []candida
 				continue
 			}
 			visited[nb] = struct{}{}
-			d := h.dist(query, h.vectors[nb].vec)
+			nbNode := &h.vectors[nb]
+			d := h.distNorm(query, qn, nbNode.vec, nbNode.norm)
 			if res.Len() < ef || d < res.Peek().dist {
 				heap.Push(cand, candidate{idx: nb, dist: d})
 				heap.Push(res, candidate{idx: nb, dist: d})
@@ -345,10 +351,9 @@ func (h *HNSW) searchLayer(query []float32, ep int, ef int, layer int) []candida
 	return out
 }
 
-// dist returns the cosine distance between two vectors, in [0, 2].
-func (h *HNSW) dist(a, b []float32) float64 {
-	na := float64(vector.Norm(a))
-	nb := float64(vector.Norm(b))
+// distNorm returns the cosine distance between two vectors with precomputed
+// norms, in [0, 2].
+func (h *HNSW) distNorm(a []float32, na float64, b []float32, nb float64) float64 {
 	if na == 0 || nb == 0 {
 		return 1
 	}
