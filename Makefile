@@ -3,8 +3,11 @@ PKG := ./...
 EXAMPLE := ./examples/basic.go
 CLI := ./cmd/goembedx
 COVER_FILE := coverage.out
+BANNER := ./scripts/ascii-banner
 
-.PHONY: all fmt lint test bench cover build example clean
+.DEFAULT_GOAL := help
+
+.PHONY: all fmt lint test bench cover build example clean install-banner
 
 all: fmt lint test
 
@@ -44,15 +47,27 @@ clean:
 	rm -rf bin/
 	rm -f $(COVER_FILE)
 
+install-banner:
+	@echo "🔗 Installing ascii-banner to $(HOME)/.local/bin..."
+	mkdir -p $(HOME)/.local/bin
+	install -m 755 $(BANNER) $(HOME)/.local/bin/ascii-banner
+
 help:
+	@echo ""
+	@$(BANNER) -c blue "EMBEDX"
+	@echo ""
 	@echo "Usage: make [target]"
 	@echo ""
 	@echo "Targets:"
-	@echo "  fmt       Format code"
-	@echo "  lint      Static analysis"
-	@echo "  test      Tests w/ race + coverage"
-	@echo "  bench     Run benchmarks"
-	@echo "  cover     Open coverage UI"
-	@echo "  build     Build CLI"
-	@echo "  example   Run example program"
-	@echo "  clean     Clean build artifacts"
+	@echo "  all             Format, lint, and test"
+	@echo "  fmt             Format code"
+	@echo "  lint            Static analysis"
+	@echo "  test            Tests w/ race + coverage"
+	@echo "  bench           Run benchmarks"
+	@echo "  cover           Open coverage UI"
+	@echo "  build           Build CLI"
+	@echo "  example         Run example program"
+	@echo "  clean           Clean build artifacts"
+	@echo "  install-banner  Install ascii-banner to ~/.local/bin"
+	@echo "  help            Show this message"
+	@echo ""
